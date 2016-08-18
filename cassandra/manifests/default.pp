@@ -8,7 +8,7 @@ file { 'hosts':
 
 
 yumrepo { 'datastax':
-  name => 'DataStax-Apache-Cassandra',
+  descr => 'DataStax Repo for Apache Cassandra',
   baseurl => 'http://rpm.datastax.com/datastax-ddc/3.7',
   enabled => 1,
   gpgcheck => 0
@@ -35,8 +35,20 @@ package { 'datastax-ddc':
 }
 
 
-service { 'cassandra':
+file { 'cassandra.yaml':
   require => [ Package['datastax-ddc'] ],
+  path => '/etc/cassandra/conf/cassandra.yaml',
+  source => '/vagrant/conf/cassandra.yaml',
+  owner => 'cassandra',
+  group => 'cassandra',
+  mode    => 755
+}
+
+
+
+service { 'cassandra':
+  require => [ Package['datastax-ddc'], File['cassandra.yaml'] ],
   provider => redhat,
-  ensure => running
+  ensure => running,
+  enable => true
 }
