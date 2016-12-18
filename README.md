@@ -5,4 +5,4 @@
 
 Run puppet:
 
-    puppet apply /vagrant/manifests/default.pp 
+    sudo puppet apply --verbose /vagrant/manifests/default.pp 
