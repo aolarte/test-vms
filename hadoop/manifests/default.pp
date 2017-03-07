@@ -44,11 +44,31 @@ node /^master\d+$/ {
     ensure => installed
   }
   
+  package { 'spark-core':
+    require => [ Yumrepo['cloudera-repo'] ],
+    name   => 'spark-core',
+    ensure => installed
+  }
+  
   file { 'core-site.xml':
     require => [ Package['hadoop-hdfs-namenode'] , Package['hadoop-yarn-resourcemanager'] ],
     path => '/etc/hadoop/conf/core-site.xml',
     source => '/vagrant/conf/core-site.xml',
     notify  => [ Service['hadoop-hdfs-namenode'] , Service['hadoop-yarn-resourcemanager'] ],
+  }
+  
+  file { 'hdfs-site.xml':
+    require => [ Package['hadoop-hdfs-namenode'] , Package['hadoop-yarn-resourcemanager'] ],
+    path => '/etc/hadoop/conf/hdfs-site.xml',
+    source => '/vagrant/conf/hdfs-site.xml',
+    notify  => [ Service['hadoop-hdfs-namenode'] ],
+  }
+
+  file { 'yarn-site.xml':
+    require => [ Package['hadoop-yarn-resourcemanager'] ],
+    path => '/etc/hadoop/conf/yarn-site.xml',
+    source => '/vagrant/conf/yarn-site.xml',
+    notify  => [ Service['hadoop-yarn-resourcemanager'] ],
   }
   
   exec {'hdfs-format':
@@ -63,13 +83,11 @@ node /^master\d+$/ {
     ensure => running,
   }
   
-  
-  
   service { 'hadoop-yarn-resourcemanager':
     require => [ Package['jre'], Package['hadoop-yarn-resourcemanager'], Service['hadoop-hdfs-namenode'] ],
     ensure => running,
   }
-  
+
   
 }
 
@@ -94,10 +112,23 @@ node /^slave\d+$/ {
     ensure => installed
   }
   
+  package { 'spark-core':
+    require => [ Yumrepo['cloudera-repo'] ],
+    name   => 'spark-core',
+    ensure => installed
+  }
+  
   file { 'core-site.xml':
     require => [ Package['hadoop-yarn-nodemanager'] , Package['hadoop-hdfs-datanode'] , Package['hadoop-mapreduce']],
     path => '/etc/hadoop/conf/core-site.xml',
     source => '/vagrant/conf/core-site.xml',
+    notify  => [ Service['hadoop-hdfs-datanode'] ],
+  }
+  
+  file { 'hdfs-site.xml':
+    require => [ Package['hadoop-yarn-nodemanager'] , Package['hadoop-hdfs-datanode'] , Package['hadoop-mapreduce']],
+    path => '/etc/hadoop/conf/hdfs-site.xml',
+    source => '/vagrant/conf/hdfs-site.xml',
     notify  => [ Service['hadoop-hdfs-datanode'] ],
   }
   
@@ -117,4 +148,5 @@ node /^slave\d+$/ {
     require => [ Package['jre'], Package['hadoop-yarn-nodemanager'] ],
     ensure => running,
   }
+  
 }
