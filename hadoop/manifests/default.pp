@@ -112,12 +112,6 @@ node /^slave\d+$/ {
     ensure => installed
   }
   
-  package { 'spark-core':
-    require => [ Yumrepo['cloudera-repo'] ],
-    name   => 'spark-core',
-    ensure => installed
-  }
-  
   file { 'core-site.xml':
     require => [ Package['hadoop-yarn-nodemanager'] , Package['hadoop-hdfs-datanode'] , Package['hadoop-mapreduce']],
     path => '/etc/hadoop/conf/core-site.xml',
